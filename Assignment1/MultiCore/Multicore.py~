@@ -1,0 +1,30 @@
+import os
+import sys
+import fileinput
+from subprocess import call
+__author__ = 'anna'
+
+thread_number = [1, 2, 4, 8, 16]
+for thread_num in thread_number:
+    f = open('batch_example.cmd','r')
+    filedata = f.read()
+    f.close()
+
+    newdata = filedata.replace("$$NUMBER_OF_THREADS$$", str(thread_num))
+
+    f = open('batch_example.cmd', 'w')
+    f.write(newdata)
+    f.close()
+
+    #f = open('batch_example.cmd','r')
+    filedata = newdata#f.read()
+    #f.close()
+
+    call("cat batch_example.cmd", shell = True)
+
+    newdata = filedata.replace("OMP_NUM_THREADS="+str(thread_num), "OMP_NUM_THREADS=$$NUMBER_OF_THREADS$$")
+    newdata = newdata.replace("pos_lulesh_openmp_"+str(thread_num), "pos_lulesh_openmp_$$NUMBER_OF_THREADS$$")
+
+    f = open('batch_example.cmd', 'w')
+    f.write(newdata)
+    f.close()

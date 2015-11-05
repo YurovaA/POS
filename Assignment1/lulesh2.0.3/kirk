@@ -1,0 +1,19 @@
+#!/bin/bash
+
+stringZ=abcABC123ABCabc
+
+echo ${#stringZ}                 # 15
+echo `expr length $stringZ`      # 15
+echo `expr "$stringZ" : '.*'`    # 15
+
+echo `expr index "$stringZ" C12`
+echo ${stringZ:7:3}
+
+
+stringY="Elapsed time         =      67.09 (s)"
+varb=$(echo "$stringY" | grep -Eo [1-9][0-9]*\.?[0-9]*)
+echo $varb
+
+#grep -o
+#echo `expr index $stringY "="`
+#echo `expr index "$stringY" s`

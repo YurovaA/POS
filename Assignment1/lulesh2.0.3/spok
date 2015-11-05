@@ -1,0 +1,76 @@
+#!/bin/bash          
+echo "Traversing compile flags for Lulesh..."
+
+MN=0
+FFP=0
+FB=0
+FI=0
+FSM=0
+FL=0
+F=0
+
+# g++ File for performances
+optres="optres_gcc $(date).csv"
+touch "$optres"
+outputsdir="outputs"
+mkdir $outputsdir
+
+echo '-march=native;-march=native;-floop-block;-floop-interchange;-floop-strip-mine;-funroll-loops;-flto;Elapsed;Grind;FOM' > "$optres"
+
+for ((mn=0; mn<= 1; mn++)); do  
+for ((ffp=0; ffp<= 1; ffp++)); do  
+for ((fb=0; fb<= 1; fb++)); do  
+for ((fi=0; fi<= 1; fi++)); do  
+for ((fsm=0; fsm<= 1; fsm++)); do  
+for ((fl=0; fl<= 1; fl++)); do  
+for ((f=0; f<= 1; f++)); do
+			make clean 
+			make MN=$mn FFP=$ffp FB=$fb FI=$fi FSM=$fsm FL=$fl F=$f
+			echo 'Launching lulesh2.0 for g++'
+			output="./$outputsdir/output_gcc-MN_$mn-FFP_$ffp-FB_$fb-FI_$fi-FSM_$fsm-FL_$fl-F_$f"
+			echo $output
+			./lulesh2.0 > $output
+			res1=$(grep "Elapsed time" $output | grep -m 1 -Eo [1-9][0-9]*\.?[0-9]* | head -1)
+			res2=$(grep "Grind time (us/z/c)" $output | grep -m 1 -Eo [1-9][0-9]*\.?[0-9]* | head -1)
+			res3=$(grep "FOM" $output | grep -Eo [1-9][0-9]*\.?[0-9]* | head -1)		
+			echo "$mn;$ffp;$fb;$fi;$fsm;$fl;$f;$res1;$res2;$res3" >> "$optres"
+			echo
+			echo
+			echo
+done; done; done; done; done; done; done
+
+echo
+echo
+echo
+
+MN=0
+XH=0
+UR=0
+IP=0
+
+# Intel File for performances
+optres_i="optres_i $(date).csv"
+touch "$optres_i"
+outputsdir_i="outputs_i"
+mkdir $outputsdir_i
+
+echo '-march=native;-xHost;-unroll;-ipo;Elapsed;Grind;FOM' > "$optres_i"
+
+for ((mn=0; mn<= 1; mn++)); do  
+for ((xh=0; xh<= 1; xh++)); do  
+for ((ur=0; ur<= 1; ur++)); do  
+for ((ip=0; ip<= 1; ip++)); do 
+			make clean
+			make INTCOMP=1 MN=$mn XH=$xh UR=$ur IP=$ip
+			echo 'Launching lulesh2.0 for icc'
+			output="./$outputsdir_i/output_icc-MN_$mn-XH_$xh-UR_$ur-IP_$ip"
+			echo $output
+			./lulesh2.0 > $output
+			res1=$(grep "Elapsed time" $output | grep -m 1 -Eo [1-9][0-9]*\.?[0-9]* | head -1)
+			res2=$(grep "Grind time (us/z/c)" $output | grep -m 1 -Eo [1-9][0-9]*\.?[0-9]* | head -1)
+			res3=$(grep "FOM" $output | grep -Eo [1-9][0-9]*\.?[0-9]* | head -1)		
+			echo "$mn;$xh;$ur;$ip;$res1;$res2;$res3" >> "$optres_i"
+			echo
+			echo
+			echo
+done; done; done; done;
